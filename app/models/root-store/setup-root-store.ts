@@ -43,6 +43,12 @@ export async function setupRootStore() {
     __DEV__ && console.tron.error(e.message, null)
   }
 
+  Object.keys(rootStore).forEach(key => {
+    if (rootStore[key] && typeof rootStore[key].initializeStore === 'function') {
+      rootStore[key].initializeStore()
+    }
+  })
+
   // reactotron logging
   if (__DEV__) {
     env.reactotron.setRootStore(rootStore, data)

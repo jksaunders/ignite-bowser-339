@@ -1,3 +1,4 @@
+require("../app/components/error-section/error-section.story")
 require("../app/components/text/text.story")
 require("../app/components/button/button.story")
 require("../app/components/form-row/form-row.story")

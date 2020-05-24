@@ -2,8 +2,9 @@ import React, { FunctionComponent as Component } from "react"
 import { View, Image, ViewStyle, TextStyle, ImageStyle, SafeAreaView } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
-import { Button, Header, Screen, Text, Wallpaper } from "../../components"
+import { Button, Header, Screen, Text, Wallpaper, ErrorSection } from "../../components"
 import { color, spacing } from "../../theme"
+import { useStores } from "../../models"
 const bowserLogo = require("./bowser.png")
 
 const FULL: ViewStyle = { flex: 1 }
@@ -79,34 +80,34 @@ export const WelcomeScreen: Component = observer(function WelcomeScreen() {
   const navigation = useNavigation()
   const nextScreen = () => navigation.navigate("demo")
 
+  const { dialogStore } = useStores()
+
   return (
     <View style={FULL}>
       <Wallpaper />
       <Screen style={CONTAINER} preset="scroll" backgroundColor={color.transparent}>
-        <Header headerTx="welcomeScreen.poweredBy" style={HEADER} titleStyle={HEADER_TITLE} />
-        <Text style={TITLE_WRAPPER}>
-          <Text style={TITLE} text="Your new app, " />
-          <Text style={ALMOST} text="almost" />
-          <Text style={TITLE} text="!" />
-        </Text>
-        <Text style={TITLE} preset="header" tx="welcomeScreen.readyForLaunch" />
-        <Image source={bowserLogo} style={BOWSER} />
         <Text style={CONTENT}>
-          This probably isn't what your app is going to look like. Unless your designer handed you
-          this screen and, in that case, congrats! You're ready to ship.
+          Try a request!
         </Text>
-        <Text style={CONTENT}>
-          For everyone else, this is where you'll see a live preview of your fully functioning app
-          using Ignite.
-        </Text>
+        <ErrorSection />
       </Screen>
       <SafeAreaView style={FOOTER}>
         <View style={FOOTER_CONTENT}>
           <Button
             style={CONTINUE}
             textStyle={CONTINUE_TEXT}
-            tx="welcomeScreen.continue"
-            onPress={nextScreen}
+            text="Valid API request"
+            onPress={() => {
+              dialogStore.environment.api.get('/users')
+            }}
+          />
+          <Button
+            style={CONTINUE}
+            textStyle={CONTINUE_TEXT}
+            text="Invalid API request"
+            onPress={() => {
+              dialogStore.environment.api.get('/invalid')
+            }}
           />
         </View>
       </SafeAreaView>

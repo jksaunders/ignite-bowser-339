@@ -1,9 +1,31 @@
-import { Api } from "../services/api"
+import axios from 'axios'
 
 let ReactotronDev
 if (__DEV__) {
   const { Reactotron } = require("../services/reactotron")
   ReactotronDev = Reactotron
+}
+
+type AxiosClientProps = {
+  onError: (error: string) => void,
+  root: string,
+}
+
+class AxiosClient {
+  onError: (error: string) => void
+  root: string
+
+  constructor(props: AxiosClientProps) {
+    console.log('constructor')
+    this.onError = props.onError
+    this.root = props.root
+  }
+
+  get(endpoint: string) {
+    axios.get(`${this.root}${endpoint}`)
+      .then(result => console.log('Result', result))
+      .catch((error) => this.onError(error.message))
+  }
 }
 
 /**
@@ -17,7 +39,14 @@ export class Environment {
       // dev-only services
       this.reactotron = new ReactotronDev()
     }
-    this.api = new Api()
+    this.api = new AxiosClient({
+      root: 'https://jsonplaceholder.typicode.com',
+      onError: (error) => {
+        if (this.setDialog) {
+          this.setDialog(error)
+        }
+      }
+    })
   }
 
   async setup() {
@@ -25,7 +54,6 @@ export class Environment {
     if (__DEV__) {
       await this.reactotron.setup()
     }
-    await this.api.setup()
   }
 
   /**
@@ -36,5 +64,7 @@ export class Environment {
   /**
    * Our api.
    */
-  api: Api
+  api: AxiosClient
+
+  setDialog: (dialog: any) => void
 }
